@@ -48,6 +48,7 @@ def create_experiment_general(general_info: DataStructure.GeneralInfo,input_list
     else:
         stage_change(general_info,"create_experiment")
         general_info.current_experiment = DataStructure.CurrentExperiment(' '.join(input_list),general_info.current_project.name)
+        datahandler.set_experiment_created_time(general_info.current_experiment)
         io_layer.print_experiment_created(general_info.current_experiment)
 
 # ---------------------------------------
@@ -56,15 +57,30 @@ def create_experiment_general(general_info: DataStructure.GeneralInfo,input_list
 #Unified input: general_info: DataStructure,input_list: list
 # ---------------------------------------
 def ce_set(general_info: DataStructure,input_list: list) -> None:
-    pass
+    changeable_variables = ['name','remark','draft','attribute']
+    if (not input_list) or (input_list[0] not in changeable_variables):
+        io_layer.report_command_invalid()
+    else:
+        datahandler.set_variables(general_info.current_experiment,input_list)
+
 
 def ce_show(general_info:DataStructure,input_list: list) -> None:
     if input_list:
         io_layer.report_command_invalid()
-    io_layer.print_current_experiment(general_info.current_experiment)
+    else:
+        io_layer.print_current_experiment(general_info.current_experiment)
 
 def ce_save(general_info: DataStructure,input_list: list) -> None:
-    pass
+    if input_list:
+        io_layer.report_command_invalid()
+    else:
+        datahandler.save_current_experiment(general_info.current_experiment)
+
+def ce_attribute_remove(general_info: DataStructure,input_list: list) -> None:
+    if not input_list:
+        io_layer.report_command_invalid()
+    else:
+        datahandler.remove_attributes(general_info.current_experiment,input_list)
 # ---------------------------------------
 
 
@@ -105,6 +121,8 @@ commands_creat_experiment = {
     **commands_universal,
     "/set": ce_set,
     "/show": ce_show,
+    "/attribute_remove": ce_attribute_remove,
+    "/save": ce_save,
 }
 commands_show_experiment = {
     **commands_universal,
